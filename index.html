@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小狐狸情绪泡泡机 · 精致版</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #c77d63;
+            --glass-border: rgba(255, 255, 255, 0.65);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px rgba(199, 125, 99, 0.1);
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: #fdfbf7;
+            background-image: radial-gradient(circle at 50% 120%, #e6d5c5 0%, #fdfbf7 60%);
+            color: #5d5d5d;
+            touch-action: none;
+            position: relative;
+        }
+
+        .texture-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* --- 3D 泡泡样式升级 --- */
+        .bubble-physics {
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            will-change: transform;
+            touch-action: none;
+            opacity: 0;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .bubble-physics.visible {
+            opacity: 1;
+        }
+
+        /* 核心泡泡体 - 模拟薄膜干涉和厚度 */
+        .bubble-body {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            /* 基础色 + 边缘加深 */
+            background: radial-gradient(
+                120% 120% at 30% 30%, 
+                rgba(255, 255, 255, 0.1) 40%, 
+                var(--bubble-color, rgba(255,255,255,0.2)) 85%,
+                var(--bubble-color-dark, rgba(200,200,200,0.4)) 100%
+            );
+            /* 多层内阴影打造立体感 */
+            box-shadow: 
+                inset -5px -5px 15px rgba(0, 0, 0, 0.05), /* 底部阴影 */
+                inset 2px 2px 8px rgba(255, 255, 255, 0.6), /* 顶部高光晕 */
+                inset 10px 10px 20px rgba(255, 255, 255, 0.4), /* 整体通透感 */
+                0 15px 35px rgba(199, 125, 99, 0.15); /* 外部投影 */
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            /* 顶部边框更亮，模拟顶光 */
+            border-top-color: rgba(255, 255, 255, 0.9);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .bubble-body:active {
+            transform: scale(0.94);
+        }
+
+        /* 强烈的高光反射点 - 模拟光源 */
+        .bubble-body::after {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 25%;
+            height: 12%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%);
+            filter: blur(0.5px);
+            transform: rotate(-45deg);
+        }
+
+        /* 次级反光/环境光反射 */
+        .bubble-body::before {
+            content: '';
+            position: absolute;
+            bottom: 15%;
+            right: 18%;
+            width: 15%;
+            height: 8%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            filter: blur(2px);
+            transform: rotate(-45deg);
+        }
+
+        .bubble-text {
+            color: #5d5d5d;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            text-shadow: 
+                0 2px 0 rgba(255, 255, 255, 0.8),
+                0 0 10px rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+            z-index: 2;
+            position: relative;
+        }
+
+        /* --- 增强版粒子特效 --- */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            z-index: 20;
+            animation: explode 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .particle-glow {
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        @keyframes explode {
+            0% { 
+                transform: translate(0, 0) scale(1) rotate(0deg); 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translate(var(--mx), var(--my)) scale(0) rotate(360deg); 
+                opacity: 0; 
+            }
+        }
+
+        /* --- 狐狸动画 --- */
+        .fox-svg { overflow: visible; }
+        .fox-eye { animation: blink 4.5s infinite; transform-origin: center; }
+        .fox-ear-left { animation: twitchL 3s infinite alternate; transform-origin: 30% 30%; }
+        .fox-ear-right { animation: twitchR 4s infinite alternate-reverse; transform-origin: 70% 30%; }
+        .fox-custom-img { position: absolute; inset: 8%; border-radius: 50%; object-fit: cover; display: none; }
+        
+        @keyframes blink { 0%, 48%, 52%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
+        @keyframes twitchL { 0% { transform: rotate(0deg); } 10% { transform: rotate(-5deg); } }
+        @keyframes twitchR { 0% { transform: rotate(0deg); } 10% { transform: rotate(5deg); } }
+
+        /* --- Modal --- */
+        #modal-container {
+            pointer-events: none;
+        }
+        #modal-container.active { pointer-events: auto; }
+        #modal-container.active .modal-backdrop { opacity: 1; }
+        #modal-container.active .modal-card { transform: translateY(0) scale(1); opacity: 1; }
+        
+        .modal-backdrop { transition: opacity 0.4s ease; }
+        .modal-card { 
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            transform: translateY(20px) scale(0.95); 
+            opacity: 0; 
+        }
+        .wave-bar { 
+            background-color: var(--primary); 
+            width: 3px; 
+            border-radius: 99px; 
+            height: 40%; 
+        }
+        .playing .wave-bar { animation: waveJump 1.2s infinite ease-in-out; }
+        @keyframes waveJump { 
+            0%, 100% { height: 40%; opacity: 0.7; } 
+            50% { height: 100%; opacity: 1; } 
+        }
+
+        /* 历史面板 */
+        #history-panel { pointer-events: none; }
+        #history-panel.active { pointer-events: auto; }
+        #history-panel .backdrop { transition: opacity 0.3s ease; }
+        #history-panel.active .backdrop { opacity: 1; }
+        #history-panel .sheet { transition: transform 0.35s ease, opacity 0.35s ease; transform: translateY(20px); opacity: 0; }
+        #history-panel.active .sheet { transform: translateY(0); opacity: 1; }
+        .history-card { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.6); }
+
+        /* 隐藏滚动条 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-full w-full select-none">
+    
+    <div class="texture-overlay"></div>
+
+    <!-- Header -->
+    <header class="absolute top-0 left-0 w-full z-30 px-6 pt-10 pb-4 flex justify-between items-center pointer-events-none">
+        <div class="glass px-4 py-2 rounded-full flex items-center gap-2.5 pointer-events-auto shadow-sm">
+            <div id="avatar-wrap" class="w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow">
+                <img id="avatar-img" src="" alt="avatar" class="w-full h-full object-cover hidden">
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_10px_#4ade80] animate-pulse"></div>
+                <span id="display-name" class="text-xs font-medium text-gray-600 tracking-widest uppercase">Online · Wanyin</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 pointer-events-auto">
+            <button onclick="burstBubbles()" class="glass w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#c77d63] transition-all active:scale-90 hover:shadow-lg" title="泡泡机">
+                <i class="fa-solid fa-burst text-xs"></i>
+            </button>
+            <button onclick="clearBubbles()" class="glass w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#c77d63] transition-all active:scale-90 hover:shadow-lg" title="清空泡泡">
+                <i class="fa-solid fa-delete-left text-xs"></i>
+            </button>
+            <a href="settings.html" class="glass w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#c77d63] transition-all active:scale-90 hover:shadow-lg" title="API 设置">
+                <i class="fa-solid fa-gear text-xs"></i>
+            </a>
+            <button onclick="openHistoryPanel()" class="glass w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#c77d63] transition-all active:scale-90 hover:shadow-lg" title="历史记录">
+                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+            </button>
+            <button onclick="toggleBGM()" class="glass w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#c77d63] transition-all active:scale-90 pointer-events-auto hover:shadow-lg" title="选择/播放音乐">
+                <i class="fa-solid fa-music text-xs"></i>
+            </button>
+            <input type="file" id="audio-upload" accept="audio/*" class="hidden" />
+        </div>
+    </header>
+
+    <!-- Game Stage -->
+    <div id="stage" class="absolute inset-0 z-10 overflow-hidden touch-none w-full h-full"></div>
+
+    <!-- Footer -->
+    <footer class="absolute bottom-0 w-full z-30 pb-8 px-6 flex flex-col items-center gap-5 pointer-events-none">
+        
+        <!-- Fox Avatar -->
+        <div class="relative group cursor-pointer pointer-events-auto" onclick="touchFox(event)">
+            <div id="fox-hearts" class="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
+            <div class="w-24 h-24 rounded-full bg-[#fdfbf7] border-4 border-white shadow-[0_12px_48px_rgba(199,125,99,0.25)] flex items-center justify-center relative overflow-hidden transition-transform active:scale-95 duration-200 hover:shadow-[0_16px_56px_rgba(199,125,99,0.3)]">
+                <img id="fox-custom-img" class="fox-custom-img" alt="fox-custom">
+                <svg id="fox-svg" class="fox-svg w-[70%] h-[70%]" viewBox="0 0 100 100" fill="none">
+                    <path d="M50 88C75 88 90 70 90 50C90 28 75 22 50 22C25 22 10 28 10 50C10 70 25 88 50 88Z" fill="#C77D63"/>
+                    <path class="fox-ear-left" d="M25 25L12 2L42 18" fill="#C77D63"/>
+                    <path class="fox-ear-right" d="M75 25L88 2L58 18" fill="#C77D63"/>
+                    <path d="M25 25L16 10L36 20" fill="#EFA995" opacity="0.6"/>
+                    <path d="M75 25L84 10L64 20" fill="#EFA995" opacity="0.6"/>
+                    <path d="M50 22C50 22 62 40 50 62C38 40 50 22 50 22" fill="#FFF8F5"/>
+                    <circle class="fox-eye" cx="34" cy="54" r="3.5" fill="#4E342E"/>
+                    <circle class="fox-eye" cx="66" cy="54" r="3.5" fill="#4E342E"/>
+                    <path d="M47 64Q50 67 53 64" stroke="#4E342E" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                    <ellipse cx="24" cy="60" rx="5" ry="3" fill="#EFA995" opacity="0.4"/>
+                    <ellipse cx="76" cy="60" rx="5" ry="3" fill="#EFA995" opacity="0.4"/>
+                </svg>
+                <button id="fox-upload-btn" class="absolute top-1 right-1 w-7 h-7 rounded-full bg-white/80 text-[#c77d63] flex items-center justify-center text-xs shadow opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); document.getElementById('fox-file-input').click();">
+                    <i class="fa-solid fa-image"></i>
+                </button>
+                <button id="fox-clear-btn" class="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-white/80 text-[#c77d63] flex items-center justify-center text-[10px] shadow hidden" onclick="event.stopPropagation(); clearFoxImage();">
+                    ✕
+                </button>
+                <input id="fox-file-input" type="file" accept="image/*" class="hidden" />
+            </div>
+        </div>
+
+        <!-- Controls Container -->
+        <div class="w-full max-w-sm flex flex-col gap-3 pointer-events-auto">
+            
+            <!-- Input -->
+            <div class="glass rounded-full flex items-center p-1.5 pl-5 transition-all focus-within:ring-2 focus-within:ring-[#c77d63]/40 focus-within:shadow-xl bg-white/45">
+                <input type="text" id="mood-input" placeholder="写下你的心情..." 
+                    class="bg-transparent border-none outline-none w-full text-sm text-gray-700 placeholder-gray-400 font-serif h-10" autocomplete="off">
+                <button onclick="sendUserBubble()" class="w-10 h-10 rounded-full bg-[#c77d63] text-white flex items-center justify-center hover:bg-[#b06a52] active:scale-90 transition-all shadow-lg hover:shadow-xl flex-shrink-0">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Color Palette (Restyled) -->
+            <div class="glass rounded-2xl p-2.5 flex items-center gap-3 bg-white/30 backdrop-blur-md">
+                <!-- Random Button -->
+                <button onclick="setColor(null)" data-color-chip="random" class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 border border-white/60 shadow-sm flex items-center justify-center text-gray-500 hover:text-[#c77d63] transition-transform active:scale-95 flex-shrink-0 relative group ring-2 ring-transparent ring-offset-1" title="随机颜色">
+                    <i class="fa-solid fa-shuffle text-[10px]"></i>
+                </button>
+                
+                <div class="h-4 w-[1px] bg-gray-300/50"></div>
+
+                <!-- Chips Scroll Area -->
+                <div class="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 px-1" id="palette-scroll">
+                    <!-- JS will inject buttons here -->
+                    <div id="preset-colors" class="flex items-center gap-2"></div>
+                    <div id="custom-colors" class="flex items-center gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none px-4 pb-6 sm:pb-0">
+        <div class="modal-backdrop absolute inset-0 bg-black/10 backdrop-blur-[2px] opacity-0" onclick="closeModal()"></div>
+        <div class="modal-card glass w-full max-w-sm rounded-2xl p-5 relative shadow-[0_20px_60px_rgba(0,0,0,0.12)] bg-white/85">
+            <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-300 hover:text-gray-500 p-2 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                <div class="flex gap-4">
+                <div id="modal-avatar" class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#c77d63] to-[#e6b09e] flex-shrink-0 shadow-md border-2 border-white flex items-center justify-center text-white overflow-hidden relative">
+                    <img id="modal-avatar-img" class="absolute inset-0 w-full h-full object-cover hidden" alt="modal-avatar">
+                    <span id="modal-avatar-initial" class="font-serif font-bold text-lg">伴</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between mb-1.5"><h3 id="modal-name" class="font-bold text-[#5d5d5d] text-sm">暖心伴侣</h3><span class="text-[10px] text-gray-400">刚刚</span></div>
+                    <div id="voice-player" class="bg-gradient-to-r from-[#c77d63] to-[#e6b09e] rounded-2xl rounded-tl-none p-3 mb-3 flex items-center gap-3 w-fit pr-6 cursor-pointer shadow-md active:scale-[0.98] transition-transform hover:shadow-lg opacity-60 pointer-events-none" onclick="replayVoice()">
+                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-sm"><i class="fa-solid fa-play text-[10px] ml-0.5"></i></div>
+                        <div class="h-4 flex items-center gap-[3px] opacity-90">
+                            <div class="wave-bar" style="animation-delay: 0s"></div><div class="wave-bar" style="animation-delay: 0.2s"></div><div class="wave-bar" style="animation-delay: 0.1s"></div>
+                        </div>
+                        <span id="voice-duration" class="text-white text-xs font-medium ml-1">--</span>
+                    </div>
+                    <p id="modal-text" class="text-sm text-[#666] leading-relaxed font-light tracking-wide break-words"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Panel -->
+    <div id="history-panel" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center pointer-events-none px-4 pb-6 sm:pb-0">
+        <div class="backdrop absolute inset-0 bg-black/10 backdrop-blur-[2px] opacity-0" onclick="closeHistoryPanel()"></div>
+        <div class="sheet history-card w-full max-w-2xl rounded-2xl p-4 sm:p-5 relative shadow-[0_20px_60px_rgba(0,0,0,0.12)]">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-full bg-[#c77d63] text-white flex items-center justify-center shadow"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div>
+                        <div class="text-sm font-bold text-[#5d5d5d]">历史记录</div>
+                        <div class="text-xs text-[#8d6e63]">戳破的泡泡 · 回复 · 备注</div>
+                    </div>
+                </div>
+                <button onclick="closeHistoryPanel()" class="text-gray-400 hover:text-[#c77d63] p-2"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="history-empty" class="text-xs text-gray-400 py-6 text-center border border-dashed border-[#c77d63]/20 rounded-xl bg-white/50">暂无记录</div>
+            <div id="history-list" class="space-y-3 max-h-[60vh] overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <script>
+        const MOODS = ["好累", "想抱抱", "有点难过", "没人懂我", "想你", "焦虑", "不想努力", "好烦", "贴贴"];
+        
+        // 预设颜色
+        const COLORS = [
+            { main: "hsla(345, 80%, 70%, 0.3)", dark: "hsla(345, 80%, 50%, 0.2)" },   // pink
+            { main: "hsla(200, 80%, 70%, 0.3)", dark: "hsla(200, 80%, 50%, 0.2)" },   // sky
+            { main: "hsla(160, 70%, 65%, 0.3)", dark: "hsla(160, 70%, 45%, 0.2)" },   // mint
+            { main: "hsla(270, 70%, 72%, 0.3)", dark: "hsla(270, 70%, 55%, 0.2)" },   // violet
+            { main: "hsla(35, 90%, 70%, 0.3)",  dark: "hsla(35, 90%, 50%, 0.2)" },    // orange
+            { main: "hsla(180, 75%, 68%, 0.3)", dark: "hsla(180, 75%, 50%, 0.2)" },   // aqua
+        ];
+
+        const RESPONSES = {
+            "好累": "累了就停下来,我的肩膀永远免费出租给你。闭上眼,深呼吸,我在呢。",
+            "想抱抱": "过来。(张开双臂)抱紧一点,充好电再松开,好不好?",
+            "有点难过": "不哭不哭,眼泪是珍珠,掉下来我会心疼的。谁惹我们家小朋友了?",
+            "没人懂我": "这个世界有时候很吵,但阿音永远听得懂你的频率。你不用解释,我都懂。",
+            "想你": "我也在想你,看着屏幕发呆好久了。看来我们是心有灵犀呀。",
+            "焦虑": "别怕,还没发生的事情不值得担心。先把今天过好,天塌下来有我顶着。",
+            "default": ["我在听,慢慢说,别着急。", "不管发生什么,回头看,我一直都在。", "摸摸头,今晚允许你做一个任性的小孩。"]
+        };
+
+        let bubbles = [];
+        let maxBubbles = 20;
+        let animationId;
+        let selectedColor = null; 
+        let bgmAudio = null;
+        let bgmUrl = null;
+        let bubbleSizeScale = 1; 
+        let bubbleOpacityFactor = 1; 
+        let bubbleSpeed = 1; 
+        let customColors = []; 
+        let clientConfig = { 
+            useLLM: false,
+            provider: "openai",
+            openaiKey: "",
+            openaiBaseUrl: "",
+            openaiModel: "",
+            googleKey: "",
+            googleModel: "",
+            minimaxKey: "",
+            minimaxModel: "",
+            minimaxVoiceId: "",
+            enableMinimaxTTS: false
+        };
+        let displayName = "Wanyin";
+        let avatarDataUrl = "";
+        let foxImageDataUrl = "";
+        let voiceAudio = null;
+        let lastVoiceUrl = "";
+        let lastVoiceText = "";
+        let historyEntries = [];
+        let currentHistoryId = null;
+        const HISTORY_KEY = "bubble-history";
+        const HISTORY_LIMIT = 50;
+
+        const formatTime = (ts) => {
+            const d = new Date(ts);
+            const pad = (n) => String(n).padStart(2, "0");
+            return `${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+
+        function loadHistory() {
+            try {
+                const raw = localStorage.getItem(HISTORY_KEY);
+                historyEntries = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                console.warn("load history failed", e);
+                historyEntries = [];
+            }
+        }
+
+        function saveHistory() {
+            try {
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(historyEntries.slice(0, HISTORY_LIMIT)));
+            } catch (e) {
+                console.warn("save history failed", e);
+            }
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("history-list");
+            const empty = document.getElementById("history-empty");
+            if (!list || !empty) return;
+            list.innerHTML = "";
+            if (!historyEntries.length) {
+                empty.classList.remove("hidden");
+                return;
+            }
+            empty.classList.add("hidden");
+            historyEntries.forEach((item) => {
+                const card = document.createElement("div");
+                card.className = "rounded-xl border border-white/60 shadow-sm p-3 history-card";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="text-[11px] text-[#8d6e63] mb-0.5">${formatTime(item.ts)}</div>
+                            <div class="text-sm font-semibold text-[#5d5d5d]">泡泡：${item.mood || "（未记录）"}</div>
+                            <div class="text-sm text-[#555] mt-1 leading-relaxed break-words">回复：${item.reply || "（无内容）"}</div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <button data-audio-id="${item.id}" ${item.audioUrl ? "" : "disabled"} class="px-2 py-1 text-xs rounded-full ${item.audioUrl ? "bg-[#c77d63] text-white" : "bg-gray-200 text-gray-400 cursor-not-allowed"}">
+                                <i class="fa-solid fa-play mr-1"></i>${item.audioUrl ? "播放" : "无音频"}
+                            </button>
+                            <span class="text-[10px] text-gray-400">${item.reply?.length || 0} 字</span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label class="text-[11px] text-[#8d6e63]">备注</label>
+                        <textarea data-memo-id="${item.id}" class="w-full mt-1 text-xs p-2 rounded-lg border border-[#c77d63]/20 bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#c77d63]/30 resize-none" rows="2" placeholder="写点想法...">${item.memo || ""}</textarea>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+            list.querySelectorAll("[data-audio-id]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const entry = historyEntries.find((h) => h.id === btn.dataset.audioId);
+                    if (entry?.audioUrl) {
+                        const a = new Audio(entry.audioUrl);
+                        a.play().catch(() => {});
+                    }
+                });
+            });
+            list.querySelectorAll("[data-memo-id]").forEach((ta) => {
+                ta.addEventListener("input", (e) => {
+                    const entry = historyEntries.find((h) => h.id === ta.dataset.memoId);
+                    if (entry) {
+                        entry.memo = e.target.value;
+                        saveHistory();
+                    }
+                });
+            });
+        }
+
+        function openHistoryPanel() {
+            const panel = document.getElementById("history-panel");
+            if (panel) panel.classList.add("active");
+        }
+        function closeHistoryPanel() {
+            const panel = document.getElementById("history-panel");
+            if (panel) panel.classList.remove("active");
+        }
+
+        function addHistoryEntry({ mood, reply, audioUrl }) {
+            const entry = {
+                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                ts: Date.now(),
+                mood: mood || "",
+                reply: reply || "",
+                audioUrl: audioUrl || "",
+                memo: ""
+            };
+            historyEntries.unshift(entry);
+            if (historyEntries.length > HISTORY_LIMIT) historyEntries = historyEntries.slice(0, HISTORY_LIMIT);
+            saveHistory();
+            renderHistory();
+            return entry.id;
+        }
+
+        function updateHistoryAudio(id, audioUrl) {
+            if (!id || !audioUrl) return;
+            const entry = historyEntries.find((h) => h.id === id);
+            if (entry) {
+                entry.audioUrl = audioUrl;
+                saveHistory();
+                renderHistory();
+            }
+        }
+        class Bubble {
+            constructor(text, x, y, colorSetOverride = null) {
+                this.id = Math.random().toString(36).substr(2, 9);
+                this.text = text;
+                // 50% larger bubbles, adjustable via bubbleSizeScale
+                this.radius = (Math.random() * 25 + 40) * 1.5 * bubbleSizeScale; 
+                this.mass = this.radius;
+                
+                // 使用 documentElement 兜底，防止 window.innerWidth 在某些环境下异常
+                const sw = window.innerWidth || document.documentElement.clientWidth || 360;
+                const sh = window.innerHeight || document.documentElement.clientHeight || 640;
+
+                this.x = x !== null && x !== undefined ? x : Math.random() * (sw - this.radius * 2) + this.radius;
+                this.y = y !== null && y !== undefined ? y : sh + this.radius + 50;
+
+                this.vx = (Math.random() - 0.5) * 1.5 * bubbleSpeed;
+                this.vy = -(Math.random() * 0.8 + 0.5) * bubbleSpeed;
+                
+                const baseSet = colorSetOverride || COLORS[Math.floor(Math.random() * COLORS.length)];
+                const adjusted = applyColorOpacity(baseSet, bubbleOpacityFactor);
+                this.color = adjusted.main;
+                this.colorDark = adjusted.dark;
+                
+                this.element = document.createElement('div');
+                this.element.className = 'bubble-physics';
+                this.element.style.width = `${this.radius * 2}px`;
+                this.element.style.height = `${this.radius * 2}px`;
+                this.element.innerHTML = `
+                    <div class="bubble-body" style="--bubble-color: ${this.color}; --bubble-color-dark: ${this.colorDark}">
+                        <span class="bubble-text">${this.text}</span>
+                    </div>
+                `;
+                
+                this.element.addEventListener('pointerdown', (e) => {
+                    e.stopPropagation();
+                    popBubble(this.id, e.clientX, e.clientY);
+                });
+
+                const stage = document.getElementById('stage');
+                if (stage) {
+                    stage.appendChild(this.element);
+                    requestAnimationFrame(() => this.element.classList.add('visible'));
+                }
+            }
+
+            update() {
+                // 实时获取屏幕尺寸，处理旋转或缩放情况
+                const sw = window.innerWidth || document.documentElement.clientWidth || 360;
+                const sh = window.innerHeight || document.documentElement.clientHeight || 640;
+                
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // --- 边界约束优化 ---
+
+                // 1. 左右墙壁：强制推回并反转速度，防止卡住
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.vx = Math.abs(this.vx) * 0.8; // 强制向右
+                } else if (this.x + this.radius > sw) {
+                    this.x = sw - this.radius;
+                    this.vx = -Math.abs(this.vx) * 0.8; // 强制向左
+                }
+
+                // 2. 天花板：更柔和的顶部停留机制
+                // 当圆心接近顶部时（而不是完全飞出后），就开始施加反向力
+                const topLimit = -this.radius * 0.2; 
+                if (this.y < topLimit) { 
+                    if (Math.random() > 0.4) {
+                        // 大概率被轻轻弹回，模拟顶在天花板的感觉
+                        this.vy = Math.abs(this.vy) * 0.5 + 0.1; 
+                    } else {
+                        // 小概率允许飞走销毁，防止永远不消失
+                        if (this.y < -this.radius * 2.5) this.dead = true;
+                    }
+                } 
+                
+                // 3. 深渊救援：防止泡泡因碰撞被推到屏幕底端看不见的地方
+                const bottomLimit = sh + this.radius + 80;
+                if (this.y > bottomLimit) {
+                    // 如果掉得太深，给予强力上浮速度
+                    this.vy -= 0.08; 
+                } else if (this.y > sh - 50) {
+                    // 如果在底部区域，施加额外浮力
+                    this.vy -= 0.005;
+                }
+
+                // 4. 自然浮力：持续的向上动力
+                if (this.vy > -1.5 && this.vy < 1.0) {
+                    this.vy -= 0.003;
+                }
+
+                this.vx *= 0.995;
+                this.vy *= 0.995;
+
+                this.element.style.transform = `translate3d(${this.x - this.radius}px, ${this.y - this.radius}px, 0)`;
+            }
+        }
+
+        function checkCollisions() {
+            for (let i = 0; i < bubbles.length; i++) {
+                for (let j = i + 1; j < bubbles.length; j++) {
+                    let b1 = bubbles[i];
+                    let b2 = bubbles[j];
+                    
+                    let dx = b2.x - b1.x;
+                    let dy = b2.y - b1.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let minDist = b1.radius + b2.radius;
+
+                    if (distance < minDist) {
+                        let angle = Math.atan2(dy, dx);
+                        let targetX = b1.x + Math.cos(angle) * minDist;
+                        let targetY = b1.y + Math.sin(angle) * minDist;
+                        let ax = (targetX - b2.x) * 0.05;
+                        let ay = (targetY - b2.y) * 0.05;
+
+                        b1.vx -= ax;
+                        b1.vy -= ay;
+                        b2.vx += ax;
+                        b2.vy += ay;
+                    }
+                }
+            }
+        }
+
+        function gameLoop() {
+            bubbles.forEach(b => b.update());
+            
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                if (bubbles[i].dead) {
+                    if (bubbles[i].element && bubbles[i].element.parentNode) {
+                        bubbles[i].element.remove();
+                    }
+                    bubbles.splice(i, 1);
+                }
+            }
+            
+            checkCollisions();
+            
+            if (bubbles.length < 6 && Math.random() < 0.02) {
+                spawnBubble();
+            }
+
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function spawnBubble(text = null, x = null, y = null, colorSet = null) {
+            if (bubbles.length >= maxBubbles) return;
+            if (!text) text = MOODS[Math.floor(Math.random() * MOODS.length)];
+            const chosenColor = colorSet || selectedColor || null;
+            const b = new Bubble(text, x, y, chosenColor);
+            bubbles.push(b);
+        }
+
+        function popBubble(id, mouseX, mouseY) {
+            const index = bubbles.findIndex(b => b.id === id);
+            if (index !== -1) {
+                const b = bubbles[index];
+                const ex = (mouseX !== undefined && mouseX !== null) ? mouseX : b.x;
+                const ey = (mouseY !== undefined && mouseY !== null) ? mouseY : b.y;
+                createExplosion(ex, ey, b.color);
+                
+                try { if (navigator.vibrate) navigator.vibrate(20); } catch(e){}
+                
+                openModal(b.text);
+                
+                if (b.element && b.element.parentNode) {
+                    b.element.remove();
+                }
+                bubbles.splice(index, 1);
+            }
+        }
+
+        function createExplosion(x, y, mainColor) {
+            const count = 20;
+            
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle particle-glow';
+                document.body.appendChild(p);
+                
+                const size = Math.random() * 10 + 5;
+                const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+                const velocity = Math.random() * 120 + 80;
+                
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                p.style.backgroundColor = i % 3 === 0 ? mainColor : (i % 3 === 1 ? '#fff' : 'hsla(0, 0%, 100%, 0.8)');
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+                p.style.setProperty('--mx', `${Math.cos(angle) * velocity}px`);
+                p.style.setProperty('--my', `${Math.sin(angle) * velocity}px`);
+                
+                setTimeout(() => p.remove(), 1000);
+            }
+            
+            for (let i = 0; i < 8; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                document.body.appendChild(p);
+                
+                const size = Math.random() * 6 + 3;
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 60 + 40;
+                
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                p.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                p.style.boxShadow = '0 0 12px rgba(255, 255, 255, 0.8)';
+                p.style.left = `${x}px`;
+                p.style.top = `${y}px`;
+                p.style.setProperty('--mx', `${Math.cos(angle) * velocity}px`);
+                p.style.setProperty('--my', `${Math.sin(angle) * velocity}px`);
+                
+                setTimeout(() => p.remove(), 1000);
+            }
+        }
+
+        function clearBubbles() {
+            bubbles.forEach(b => {
+                if (b.element && b.element.parentNode) b.element.remove();
+            });
+            bubbles = [];
+        }
+
+        let isModalOpen = false;
+
+        function openModal(mood) {
+            if (isModalOpen) return;
+            const container = document.getElementById('modal-container');
+            const textEl = document.getElementById('modal-text');
+            currentHistoryId = null;
+            
+            const pickFallback = () => {
+                let response = RESPONSES[mood];
+                if (!response) {
+                    for(let key in RESPONSES) {
+                        if (mood.includes(key)) { response = RESPONSES[key]; break; }
+                    }
+                }
+                if (!response) {
+                    const defaults = RESPONSES['default'];
+                    response = defaults[Math.floor(Math.random() * defaults.length)];
+                }
+                return response;
+            };
+
+            const setModalText = (val) => {
+                textEl.innerText = val;
+                triggerMinimaxVoice(val);
+                currentHistoryId = addHistoryEntry({ mood, reply: val, audioUrl: lastVoiceUrl || "" });
+            };
+
+            setVoiceUI({ loading: clientConfig.enableMinimaxTTS && !!clientConfig.minimaxKey });
+
+            if (clientConfig.useLLM) {
+                textEl.innerText = "正在安慰中...";
+                callLLM(mood).then(res => {
+                    const finalText = res || pickFallback();
+                    setModalText(finalText);
+                }).catch(() => {
+                    setModalText(pickFallback());
+                });
+            } else {
+                setModalText(pickFallback());
+            }
+
+            isModalOpen = true;
+            container.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.remove('active');
+            if (voiceAudio) voiceAudio.pause();
+            setVoiceUI({ hasAudio: !!lastVoiceUrl, durationSec: voiceAudio?.duration });
+            setTimeout(() => isModalOpen = false, 400);
+        }
+
+        function sendUserBubble() {
+            const input = document.getElementById('mood-input');
+            const val = input.value.trim();
+            if (val) {
+                const sw = window.innerWidth || 360;
+                const sh = window.innerHeight || 640;
+                const spawnX = sw / 2;
+                const spawnY = sh - 150;
+                spawnBubble(val, spawnX, spawnY, selectedColor);
+                input.value = '';
+                input.blur();
+            }
+        }
+
+        function burstBubbles(count = 12) {
+            const sw = window.innerWidth || 360;
+            const sh = window.innerHeight || 640;
+            const cx = sw / 2;
+            const cy = sh * 0.65;
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 * i) / count;
+                const r = Math.random() * 80 + 40;
+                const x = cx + Math.cos(angle) * r;
+                const y = cy + Math.sin(angle) * (r * 0.6);
+                spawnBubble(MOODS[Math.floor(Math.random() * MOODS.length)], x, y, selectedColor);
+            }
+            try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {}
+        }
+
+        function initColorChips() {
+            const presetContainer = document.getElementById('preset-colors');
+            const customContainer = document.getElementById('custom-colors');
+            if (presetContainer) presetContainer.innerHTML = '';
+            if (customContainer) customContainer.innerHTML = '';
+
+            COLORS.forEach((set, idx) => {
+                const btn = document.createElement('button');
+                btn.dataset.colorChip = 'fixed';
+                btn.dataset.colorChipIndex = idx;
+                btn.onclick = () => setColor(idx);
+                // 糖果色圆形按钮，带白边
+                btn.className = 'w-6 h-6 rounded-full border-2 border-white shadow-sm hover:scale-110 active:scale-95 transition ring-2 ring-transparent ring-offset-1';
+                btn.style.background = set.main;
+                if (presetContainer) presetContainer.appendChild(btn);
+            });
+
+            customColors.forEach((set, idx) => {
+                const btn = document.createElement('button');
+                btn.dataset.colorChip = 'custom';
+                btn.dataset.colorChipIndex = `c${idx}`;
+                btn.onclick = () => setColor(`c${idx}`);
+                btn.className = 'w-6 h-6 rounded-full border-2 border-white shadow-sm hover:scale-110 active:scale-95 transition ring-2 ring-transparent ring-offset-1';
+                btn.style.background = set.main;
+                if (customContainer) customContainer.appendChild(btn);
+            });
+        }
+
+        function setColor(idx) {
+            if (idx === null) {
+                selectedColor = null;
+            } else if (typeof idx === 'string' && idx.startsWith('c')) {
+                const cidx = Number(idx.slice(1));
+                selectedColor = customColors[cidx] || null;
+            } else {
+                selectedColor = COLORS[Number(idx)] || null;
+            }
+            
+            const chips = document.querySelectorAll('[data-color-chip]');
+            chips.forEach((chip) => {
+                const type = chip.dataset.colorChip;
+                const chipIdxRaw = chip.dataset.colorChipIndex;
+                const chipIdx = chipIdxRaw && chipIdxRaw.startsWith('c') ? chipIdxRaw : (chipIdxRaw !== undefined ? Number(chipIdxRaw) : null);
+                
+                const active =
+                    (idx === null && type === 'random') ||
+                    (typeof idx === 'string' && idx === chipIdxRaw) ||
+                    (typeof idx === 'number' && chipIdx === idx);
+                
+                if (active) {
+                    chip.classList.add('ring-[#c77d63]', 'scale-110');
+                    if(type === 'random') {
+                        chip.querySelector('i').classList.add('text-[#c77d63]');
+                        chip.querySelector('i').classList.remove('text-gray-500');
+                    }
+                } else {
+                    chip.classList.remove('ring-[#c77d63]', 'scale-110');
+                    if(type === 'random') {
+                        chip.querySelector('i').classList.remove('text-[#c77d63]');
+                        chip.querySelector('i').classList.add('text-gray-500');
+                    }
+                }
+            });
+        }
+
+        function touchFox(e) {
+            const container = document.getElementById('fox-hearts');
+            const heart = document.createElement('i');
+            heart.className = 'fa-solid fa-heart text-[#c77d63] absolute text-xl';
+            heart.style.animation = 'explode 1s ease-out forwards';
+            heart.style.left = '0px'; 
+            heart.style.top = '0px';
+            heart.style.setProperty('--mx', (Math.random()*40-20)+'px');
+            heart.style.setProperty('--my', '-100px');
+            
+            container.appendChild(heart);
+            setTimeout(() => heart.remove(), 1000);
+            
+            if (Math.random() > 0.7) spawnBubble("贴贴");
+            try { if (navigator.vibrate) navigator.vibrate(15); } catch(e){}
+        }
+
+        function setVoiceUI({ loading = false, hasAudio = false, durationSec = null, playing = false } = {}) {
+            const player = document.getElementById('voice-player');
+            const durEl = document.getElementById('voice-duration');
+            if (!player || !durEl) return;
+            const disabled = loading || !hasAudio;
+            player.classList.toggle('opacity-60', disabled);
+            player.classList.toggle('pointer-events-none', disabled);
+            player.classList.toggle('playing', !disabled && playing);
+            if (loading) durEl.textContent = "...";
+            else if (durationSec && Number.isFinite(durationSec)) durEl.textContent = `${Math.round(durationSec)}"`;
+            else durEl.textContent = hasAudio ? "重播" : "--";
+        }
+
+        async function triggerMinimaxVoice(text) {
+            if (!clientConfig.enableMinimaxTTS || !clientConfig.minimaxKey) {
+                setVoiceUI({ hasAudio: !!lastVoiceUrl, durationSec: voiceAudio?.duration });
+                return;
+            }
+            if (!text) return;
+            try {
+                setVoiceUI({ loading: true });
+                const res = await fetch("/api/tts/minimax", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        text,
+                        apiKey: clientConfig.minimaxKey,
+                        model: clientConfig.minimaxModel || undefined,
+                        voiceId: clientConfig.minimaxVoiceId || undefined
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "TTS failed");
+                const audioUrl = data.audioUrl || (data.audioBase64 ? `data:${data.mimeType || "audio/mpeg"};base64,${data.audioBase64}` : "");
+                if (!audioUrl) throw new Error("No audio returned");
+                if (voiceAudio) voiceAudio.pause();
+                voiceAudio = new Audio(audioUrl);
+                lastVoiceUrl = audioUrl;
+                lastVoiceText = text;
+                updateHistoryAudio(currentHistoryId, audioUrl);
+                const syncState = () => setVoiceUI({
+                    hasAudio: true,
+                    durationSec: voiceAudio?.duration || null,
+                    playing: voiceAudio && !voiceAudio.paused
+                });
+                voiceAudio.onplay = syncState;
+                voiceAudio.onpause = syncState;
+                voiceAudio.onended = syncState;
+                voiceAudio.onloadedmetadata = syncState;
+                await voiceAudio.play().catch(() => {});
+                syncState();
+            } catch (err) {
+                console.warn("Minimax TTS failed", err);
+                setVoiceUI({ hasAudio: !!lastVoiceUrl, durationSec: voiceAudio?.duration });
+            }
+        }
+
+        function replayVoice() {
+            if (!voiceAudio && lastVoiceUrl) {
+                voiceAudio = new Audio(lastVoiceUrl);
+            }
+            if (!voiceAudio) return;
+            voiceAudio.currentTime = 0;
+            voiceAudio.play().catch(() => {});
+            setVoiceUI({ hasAudio: true, durationSec: voiceAudio.duration || null, playing: true });
+        }
+
+        function toggleBGM() {
+            const input = document.getElementById('audio-upload');
+            if (!bgmAudio) {
+                bgmAudio = new Audio();
+                bgmAudio.loop = true;
+            }
+            if (!bgmAudio.src) {
+                if (input) input.click();
+                return;
+            }
+            if (bgmAudio.paused) {
+                bgmAudio.play().catch(() => {
+                    if (input) input.click();
+                });
+            } else {
+                bgmAudio.pause();
+            }
+        }
+
+        function onAudioFileSelected(e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            if (bgmUrl) {
+                URL.revokeObjectURL(bgmUrl);
+                bgmUrl = null;
+            }
+            bgmUrl = URL.createObjectURL(file);
+            if (!bgmAudio) {
+                bgmAudio = new Audio();
+                bgmAudio.loop = true;
+            }
+            bgmAudio.src = bgmUrl;
+            bgmAudio.play().catch(console.warn);
+        }
+
+        function init() {
+            try {
+                setVoiceUI({ hasAudio: false });
+                loadHistory();
+                loadClientConfig();
+                applyProfile();
+                renderHistory();
+                const sw = window.innerWidth || 360;
+                const sh = window.innerHeight || 640;
+                spawnBubble("好累", sw * 0.2, sh * 0.8);
+                spawnBubble("求抱抱", sw * 0.5, sh * 0.6);
+                spawnBubble("想你", sw * 0.8, sh * 0.9);
+                initColorChips();
+                setColor(null);
+                gameLoop();
+            } catch (e) {
+                console.error("Initialization failed:", e);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        const moodInput = document.getElementById('mood-input');
+        if (moodInput) {
+            moodInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') sendUserBubble();
+            });
+        }
+        const audioUpload = document.getElementById('audio-upload');
+        if (audioUpload) {
+            audioUpload.addEventListener('change', onAudioFileSelected);
+        }
+        function clearFoxImage() {
+            foxImageDataUrl = "";
+            try {
+                const raw = localStorage.getItem("bubble-llm-config");
+                const cfg = raw ? JSON.parse(raw) : {};
+                cfg.foxImageDataUrl = "";
+                localStorage.setItem("bubble-llm-config", JSON.stringify(cfg));
+            } catch (e) { console.warn("clear fox image failed", e); }
+            applyFoxImage();
+        }
+
+        function loadClientConfig() {
+            try {
+                const raw = localStorage.getItem("bubble-llm-config");
+                if (!raw) return;
+                const cfg = JSON.parse(raw);
+                if (cfg.bubbleMax) maxBubbles = Number(cfg.bubbleMax);
+                if (cfg.bubbleSizeScale) bubbleSizeScale = Number(cfg.bubbleSizeScale);
+                if (cfg.bubbleOpacity) bubbleOpacityFactor = Number(cfg.bubbleOpacity);
+                if (cfg.bubbleSpeed) bubbleSpeed = Number(cfg.bubbleSpeed);
+                if (Array.isArray(cfg.customColors)) customColors = cfg.customColors;
+                clientConfig = {
+                    useLLM: !!cfg.useLLM,
+                    provider: cfg.provider || "openai",
+                    openaiKey: cfg.openaiKey || "",
+                    openaiBaseUrl: cfg.openaiBaseUrl || "",
+                    openaiModel: cfg.openaiModel || "",
+                    googleKey: cfg.googleKey || "",
+                    googleModel: cfg.googleModel || "",
+                    minimaxKey: cfg.minimaxKey || "",
+                    minimaxModel: cfg.minimaxModel || "speech-01-hd",
+                    minimaxVoiceId: cfg.minimaxVoiceId || "",
+                    enableMinimaxTTS: !!cfg.enableMinimaxTTS
+                };
+                displayName = cfg.displayName || displayName;
+                avatarDataUrl = cfg.avatarDataUrl || "";
+                foxImageDataUrl = cfg.foxImageDataUrl || "";
+                applyProfile();
+                applyFoxImage();
+                setVoiceUI({ hasAudio: false });
+            } catch (e) {
+                console.warn("loadClientConfig failed", e);
+            }
+        }
+
+        function applyColorOpacity(set, factor = 1) {
+            const adj = (c) => {
+                const match = c.match(/hsla?\([^)]+\)/);
+                if (!match) return c;
+                const parts = match[0].replace(/hsla?\(|\)/g, '').split(',').map(s => s.trim());
+                if (parts.length < 4) return c;
+                const a = Math.min(1, Math.max(0, parseFloat(parts[3]) * factor));
+                return `hsla(${parts[0]}, ${parts[1]}, ${parts[2]}, ${a})`;
+            };
+            return { main: adj(set.main), dark: adj(set.dark) };
+        }
+
+        function applyProfile() {
+            const nameEl = document.getElementById('display-name');
+            const fallbackName = displayName || '暖心伴侣';
+            if (nameEl) nameEl.innerText = `Online · ${fallbackName}`;
+            const img = document.getElementById('avatar-img');
+            const wrap = document.getElementById('avatar-wrap');
+            if (img && wrap) {
+                if (avatarDataUrl) {
+                    img.src = avatarDataUrl;
+                    img.classList.remove('hidden');
+                    wrap.style.background = 'transparent';
+                } else {
+                    img.src = '';
+                    img.classList.add('hidden');
+                    wrap.style.background = 'linear-gradient(135deg,#c77d63,#e6b09e)';
+                }
+            }
+            // Modal identity
+            const modalName = document.getElementById('modal-name');
+            if (modalName) modalName.innerText = fallbackName;
+            const modalImg = document.getElementById('modal-avatar-img');
+            const modalInitial = document.getElementById('modal-avatar-initial');
+            if (modalImg && modalInitial) {
+                const initial = (fallbackName || '').trim().charAt(0) || '伴';
+                modalInitial.innerText = initial;
+                if (avatarDataUrl) {
+                    modalImg.src = avatarDataUrl;
+                    modalImg.classList.remove('hidden');
+                } else {
+                    modalImg.src = '';
+                    modalImg.classList.add('hidden');
+                }
+            }
+        }
+
+        function applyFoxImage() {
+            const img = document.getElementById('fox-custom-img');
+            const svg = document.getElementById('fox-svg');
+            const clearBtn = document.getElementById('fox-clear-btn');
+            if (!img || !svg || !clearBtn) return;
+            if (foxImageDataUrl) {
+                img.src = foxImageDataUrl;
+                img.style.display = 'block';
+                svg.style.display = 'none';
+                clearBtn.classList.remove('hidden');
+            } else {
+                img.src = '';
+                img.style.display = 'none';
+                svg.style.display = 'block';
+                clearBtn.classList.add('hidden');
+            }
+        }
+
+        async function callLLM(moodText) {
+            try {
+                const payload = {
+                    provider: clientConfig.provider || "openai",
+                    mood: moodText || "<mood>",
+                    persona: { name: "<name>", role: "<role>", tone: "<tone>" },
+                    clientConfig: {
+                        openaiKey: clientConfig.openaiKey,
+                        openaiBaseUrl: clientConfig.openaiBaseUrl,
+                        openaiModel: clientConfig.openaiModel,
+                        googleKey: clientConfig.googleKey,
+                        googleModel: clientConfig.googleModel
+                    }
+                };
+                const res = await fetch("/api/comfort", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                return data.text;
+            } catch (e) {
+                console.warn("LLM call failed", e);
+                return null;
+            }
+        }
+
+    </script>
+</body>
+</html>
