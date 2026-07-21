@@ -14,7 +14,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -571,6 +571,113 @@
     }
 </style>
 
+
+<!-- fox-and-type-refinement -->
+<style>
+    body,
+    button,
+    input,
+    select,
+    textarea {
+        font-family: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .brand-panel {
+        width: min(540px, 42vw) !important;
+    }
+
+    .brand-panel h1 {
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-size: clamp(2.7rem, 3.9vw, 4.15rem) !important;
+        font-weight: 700 !important;
+        line-height: 1.18 !important;
+        letter-spacing: -0.055em !important;
+    }
+
+    .brand-panel h1 em {
+        display: inline-block;
+        white-space: nowrap;
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-style: normal !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.055em !important;
+    }
+
+    .brand-eyebrow {
+        letter-spacing: .15em !important;
+        font-weight: 600 !important;
+    }
+
+    .brand-panel p {
+        max-width: 430px;
+        color: #75625b !important;
+        font-size: 14px !important;
+        line-height: 1.85 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .brand-tags span,
+    .fox-caption,
+    #display-name {
+        font-family: 'Noto Sans SC', sans-serif !important;
+        letter-spacing: .04em !important;
+    }
+
+    #display-name {
+        font-weight: 500 !important;
+    }
+
+    .bubble-text {
+        max-width: 76%;
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-weight: 600 !important;
+        line-height: 1.35 !important;
+        letter-spacing: 0 !important;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+    #mood-input {
+        font-size: 14px !important;
+        letter-spacing: 0 !important;
+    }
+
+    #fox-svg {
+        filter: drop-shadow(0 4px 7px rgba(123, 67, 49, .13));
+    }
+
+    @media (max-width: 860px) {
+        .brand-panel {
+            width: calc(100% - 44px) !important;
+        }
+
+        .brand-panel h1 {
+            font-size: clamp(2rem, 8vw, 2.55rem) !important;
+            line-height: 1.2 !important;
+            letter-spacing: -0.045em !important;
+        }
+
+        .brand-panel h1 em {
+            white-space: normal;
+        }
+
+        .brand-eyebrow {
+            letter-spacing: .11em !important;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .brand-panel h1 {
+            font-size: 2rem !important;
+        }
+
+        #display-name {
+            letter-spacing: .03em !important;
+        }
+    }
+</style>
+
 </head>
 <body class="flex flex-col h-full w-full select-none">
     
@@ -628,18 +735,31 @@
             <div id="fox-hearts" class="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
             <div class="w-24 h-24 rounded-full bg-[#fdfbf7] border-4 border-white shadow-[0_12px_48px_rgba(199,125,99,0.25)] flex items-center justify-center relative overflow-hidden transition-transform active:scale-95 duration-200 hover:shadow-[0_16px_56px_rgba(199,125,99,0.3)]">
                 <img id="fox-custom-img" class="fox-custom-img" alt="fox-custom">
-                <svg id="fox-svg" class="fox-svg w-[70%] h-[70%]" viewBox="0 0 100 100" fill="none">
-                    <path d="M50 88C75 88 90 70 90 50C90 28 75 22 50 22C25 22 10 28 10 50C10 70 25 88 50 88Z" fill="#C77D63"/>
-                    <path class="fox-ear-left" d="M25 25L12 2L42 18" fill="#C77D63"/>
-                    <path class="fox-ear-right" d="M75 25L88 2L58 18" fill="#C77D63"/>
-                    <path d="M25 25L16 10L36 20" fill="#EFA995" opacity="0.6"/>
-                    <path d="M75 25L84 10L64 20" fill="#EFA995" opacity="0.6"/>
-                    <path d="M50 22C50 22 62 40 50 62C38 40 50 22 50 22" fill="#FFF8F5"/>
-                    <circle class="fox-eye" cx="34" cy="54" r="3.5" fill="#4E342E"/>
-                    <circle class="fox-eye" cx="66" cy="54" r="3.5" fill="#4E342E"/>
-                    <path d="M47 64Q50 67 53 64" stroke="#4E342E" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-                    <ellipse cx="24" cy="60" rx="5" ry="3" fill="#EFA995" opacity="0.4"/>
-                    <ellipse cx="76" cy="60" rx="5" ry="3" fill="#EFA995" opacity="0.4"/>
+                <svg id="fox-svg" class="fox-svg w-[76%] h-[76%]" viewBox="0 0 120 120" fill="none" aria-label="小狐狸头像">
+                    <defs>
+                        <linearGradient id="foxFur" x1="25" y1="24" x2="94" y2="102" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#E99373"/>
+                            <stop offset="1" stop-color="#C96F52"/>
+                        </linearGradient>
+                    </defs>
+                    <path class="fox-ear-left" d="M25 45L20 15L50 34L42 52Z" fill="url(#foxFur)"/>
+                    <path class="fox-ear-right" d="M95 45L100 15L70 34L78 52Z" fill="url(#foxFur)"/>
+                    <path d="M27 37L24 23L43 37L37 45Z" fill="#F8C2B2"/>
+                    <path d="M93 37L96 23L77 37L83 45Z" fill="#F8C2B2"/>
+                    <path d="M31 39C38 28 49 24 60 24C71 24 82 28 89 39C98 53 98 78 87 92C80 101 70 105 60 105C50 105 40 101 33 92C22 78 22 53 31 39Z" fill="url(#foxFur)"/>
+                    <path d="M31 58C36 48 44 43 52 41C49 56 45 68 34 78C30 72 28 65 31 58Z" fill="#FFF4ED"/>
+                    <path d="M89 58C84 48 76 43 68 41C71 56 75 68 86 78C90 72 92 65 89 58Z" fill="#FFF4ED"/>
+                    <path d="M52 31L60 45L68 31L66 58L60 64L54 58Z" fill="#FFF8F3"/>
+                    <ellipse cx="51" cy="72" rx="13" ry="11" fill="#FFF4ED"/>
+                    <ellipse cx="69" cy="72" rx="13" ry="11" fill="#FFF4ED"/>
+                    <ellipse class="fox-eye" cx="45" cy="61" rx="3.5" ry="4" fill="#49332D"/>
+                    <ellipse class="fox-eye" cx="75" cy="61" rx="3.5" ry="4" fill="#49332D"/>
+                    <circle cx="36" cy="72" r="4" fill="#EFA693" opacity="0.75"/>
+                    <circle cx="84" cy="72" r="4" fill="#EFA693" opacity="0.75"/>
+                    <path d="M55 72C56.5 69.8 63.5 69.8 65 72C63.8 75.7 61.9 77 60 77C58.1 77 56.2 75.7 55 72Z" fill="#49332D"/>
+                    <path d="M60 77V80" stroke="#49332D" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M60 80C57.8 83.2 54.7 83.5 52.5 81.8" stroke="#49332D" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M60 80C62.2 83.2 65.3 83.5 67.5 81.8" stroke="#49332D" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <button id="fox-upload-btn" class="absolute top-1 right-1 w-7 h-7 rounded-full bg-white/80 text-[#c77d63] flex items-center justify-center text-xs shadow opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); document.getElementById('fox-file-input').click();">
                     <i class="fa-solid fa-image"></i>
