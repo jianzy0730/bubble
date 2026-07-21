@@ -678,6 +678,26 @@
     }
 </style>
 
+
+<!-- mobile-status-polish -->
+<style>
+@media (max-width: 520px) {
+    #display-name {
+        max-width: none !important;
+        overflow: visible !important;
+        font-size: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    #display-name::after {
+        content: "ONLINE";
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .09em;
+    }
+}
+</style>
+
 </head>
 <body class="flex flex-col h-full w-full select-none">
     
