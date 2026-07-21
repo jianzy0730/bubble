@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小狐狸情绪泡泡机 · 精致版</title>
+    <title>Bubble · 小狐狸情绪泡泡机</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -231,6 +231,345 @@
             scrollbar-width: none;
         }
     </style>
+
+<!-- soft-fox-refresh -->
+<meta name="theme-color" content="#f6eee8">
+<style>
+    :root {
+        --ink: #3f3735;
+        --muted: #8a7770;
+        --fox: #c8755d;
+        --fox-deep: #a95743;
+        --cream: #fffaf5;
+        --paper: rgba(255, 252, 248, 0.72);
+        --line: rgba(126, 84, 67, 0.12);
+        --soft-shadow: 0 24px 70px rgba(112, 72, 56, 0.12);
+    }
+
+    body {
+        color: var(--ink);
+        background:
+            radial-gradient(circle at 14% 16%, rgba(255,255,255,.95) 0 7%, transparent 28%),
+            radial-gradient(circle at 82% 18%, rgba(238,192,176,.28), transparent 29%),
+            radial-gradient(circle at 52% 105%, rgba(202,148,124,.28), transparent 43%),
+            linear-gradient(135deg, #fffdf9 0%, #f8f0e9 46%, #f5e9e3 100%);
+    }
+
+    body::before,
+    body::after {
+        content: "";
+        position: fixed;
+        border-radius: 999px;
+        filter: blur(2px);
+        pointer-events: none;
+        z-index: 1;
+        opacity: .8;
+    }
+
+    body::before {
+        width: 28rem;
+        height: 28rem;
+        left: -13rem;
+        bottom: -13rem;
+        border: 1px solid rgba(199,125,99,.14);
+        box-shadow: inset 0 0 80px rgba(255,255,255,.65);
+    }
+
+    body::after {
+        width: 18rem;
+        height: 18rem;
+        right: -8rem;
+        top: 24%;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.58);
+        box-shadow: 0 24px 80px rgba(199,125,99,.10);
+    }
+
+    .texture-overlay { opacity: .55; }
+
+    .glass {
+        background: linear-gradient(145deg, rgba(255,255,255,.76), rgba(255,248,242,.48));
+        border: 1px solid rgba(255,255,255,.74);
+        box-shadow: 0 14px 42px rgba(91,56,43,.09), inset 0 1px 0 rgba(255,255,255,.8);
+        backdrop-filter: blur(22px) saturate(120%);
+        -webkit-backdrop-filter: blur(22px) saturate(120%);
+    }
+
+    header {
+        width: min(1180px, calc(100% - 40px)) !important;
+        left: 50% !important;
+        transform: translateX(-50%);
+        padding: 22px 0 0 !important;
+    }
+
+    header > div:first-child {
+        min-height: 48px;
+        padding: 7px 14px 7px 8px !important;
+        border-radius: 18px !important;
+    }
+
+    #avatar-wrap {
+        width: 34px !important;
+        height: 34px !important;
+        border-color: rgba(255,255,255,.86) !important;
+    }
+
+    #display-name {
+        color: var(--muted) !important;
+        letter-spacing: .12em !important;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    header > div:last-child {
+        gap: 3px !important;
+        padding: 5px;
+        border: 1px solid rgba(255,255,255,.74);
+        border-radius: 18px;
+        background: rgba(255,250,246,.56);
+        box-shadow: 0 14px 38px rgba(92,57,44,.08);
+        backdrop-filter: blur(22px);
+    }
+
+    header > div:last-child > button,
+    header > div:last-child > a {
+        width: 38px !important;
+        height: 38px !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        color: #92776e !important;
+    }
+
+    header > div:last-child > button:hover,
+    header > div:last-child > a:hover {
+        color: var(--fox-deep) !important;
+        background: rgba(199,125,99,.10) !important;
+        transform: translateY(-1px);
+    }
+
+    .brand-panel {
+        position: absolute;
+        z-index: 22;
+        top: 22%;
+        left: max(6vw, calc((100vw - 1180px) / 2));
+        width: min(390px, 34vw);
+        pointer-events: none;
+        animation: brandIn .9s cubic-bezier(.2,.75,.25,1) both;
+    }
+
+    .brand-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        color: #9d7568;
+        font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+    }
+
+    .brand-eyebrow span {
+        width: 28px;
+        height: 1px;
+        background: var(--fox);
+    }
+
+    .brand-panel h1 {
+        margin: 0;
+        color: #433936;
+        font-size: clamp(2.45rem, 4.3vw, 4.6rem);
+        line-height: 1.08;
+        letter-spacing: -.055em;
+        font-weight: 700;
+        text-shadow: 0 1px 0 rgba(255,255,255,.65);
+    }
+
+    .brand-panel h1 em {
+        color: var(--fox);
+        font-style: normal;
+        font-family: 'Ma Shan Zheng', cursive;
+        font-weight: 400;
+        letter-spacing: -.01em;
+    }
+
+    .brand-panel p {
+        max-width: 320px;
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.9;
+        letter-spacing: .04em;
+    }
+
+    .brand-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .brand-tags span {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255,255,255,.38);
+        color: #92776e;
+        font: 500 11px/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .05em;
+    }
+
+    #stage {
+        mask-image: linear-gradient(to bottom, transparent 0, #000 7%, #000 82%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 7%, #000 82%, transparent 100%);
+    }
+
+    .bubble-physics { filter: drop-shadow(0 18px 24px rgba(132,91,75,.08)); }
+
+    .bubble-body {
+        background:
+            radial-gradient(circle at 28% 22%, rgba(255,255,255,.98) 0 4%, rgba(255,255,255,.42) 10%, transparent 23%),
+            radial-gradient(circle at 72% 76%, var(--bubble-color-dark) 0%, transparent 44%),
+            radial-gradient(circle at 34% 34%, rgba(255,255,255,.24), var(--bubble-color) 72%, rgba(255,255,255,.18) 100%) !important;
+        border: 1px solid rgba(255,255,255,.78) !important;
+        box-shadow:
+            inset 8px 8px 22px rgba(255,255,255,.5),
+            inset -8px -10px 25px rgba(147,94,75,.08),
+            0 18px 38px rgba(120,78,61,.11) !important;
+        backdrop-filter: blur(2px);
+    }
+
+    .bubble-text {
+        color: rgba(70,57,53,.82) !important;
+        font-size: .88rem !important;
+        letter-spacing: .06em !important;
+        text-shadow: 0 1px 8px rgba(255,255,255,.9) !important;
+    }
+
+    footer {
+        left: auto !important;
+        right: max(5vw, calc((100vw - 1180px) / 2));
+        width: min(430px, calc(100% - 36px)) !important;
+        padding: 0 0 34px !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+    }
+
+    footer > .relative.group {
+        align-self: center;
+        margin-bottom: -4px;
+    }
+
+    footer > .relative.group > div:nth-child(2) {
+        width: 92px !important;
+        height: 92px !important;
+        background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(255,245,239,.82)) !important;
+        border-width: 6px !important;
+        box-shadow: 0 24px 55px rgba(167,92,67,.19) !important;
+    }
+
+    .fox-caption {
+        text-align: center;
+        color: #a1877d;
+        font: 500 11px/1.5 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .08em;
+    }
+
+    footer .max-w-sm { max-width: none !important; }
+
+    #mood-input {
+        height: 48px !important;
+        color: var(--ink) !important;
+        font-family: 'Noto Serif SC', serif;
+    }
+
+    #mood-input::placeholder { color: #ad9991 !important; }
+
+    #mood-input + button {
+        width: 44px !important;
+        height: 44px !important;
+        background: linear-gradient(145deg, #d18469, #b8614a) !important;
+        box-shadow: 0 10px 24px rgba(177,83,60,.26) !important;
+    }
+
+    footer .glass.rounded-full {
+        padding: 5px 6px 5px 20px !important;
+        border-radius: 21px !important;
+    }
+
+    footer .glass.rounded-2xl {
+        border-radius: 18px !important;
+        padding: 9px 11px !important;
+    }
+
+    #modal-container .modal-card,
+    #history-panel .sheet {
+        border-radius: 26px !important;
+        border: 1px solid rgba(255,255,255,.86) !important;
+        background: rgba(255,252,249,.88) !important;
+        box-shadow: var(--soft-shadow) !important;
+    }
+
+    #history-panel .sheet { max-width: 760px !important; }
+    .history-card { background: rgba(255,255,255,.62) !important; }
+
+    @keyframes brandIn {
+        from { opacity: 0; transform: translateY(18px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+        header {
+            width: calc(100% - 24px) !important;
+            padding-top: 12px !important;
+        }
+
+        header > div:first-child { min-height: 44px; }
+        header > div:last-child { max-width: 52vw; overflow-x: auto; scrollbar-width: none; }
+        header > div:last-child::-webkit-scrollbar { display: none; }
+
+        .brand-panel {
+            top: 94px;
+            left: 22px;
+            width: calc(100% - 44px);
+            text-align: center;
+        }
+
+        .brand-eyebrow { justify-content: center; margin-bottom: 9px; }
+        .brand-panel h1 { font-size: clamp(1.75rem, 8vw, 2.55rem); line-height: 1.08; }
+        .brand-panel h1 br { display: none; }
+        .brand-panel p { display: none; }
+        .brand-tags { display: none; }
+
+        footer {
+            right: 50%;
+            transform: translateX(50%);
+            width: calc(100% - 28px) !important;
+            padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+        }
+
+        footer > .relative.group > div:nth-child(2) {
+            width: 76px !important;
+            height: 76px !important;
+        }
+
+        .fox-caption { display: none; }
+        #stage { mask-image: none; -webkit-mask-image: none; }
+    }
+
+    @media (max-width: 520px) {
+        #display-name { max-width: 94px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        header > div:last-child { max-width: 49vw; }
+        header > div:last-child > button,
+        header > div:last-child > a { width: 36px !important; height: 36px !important; flex: 0 0 auto; }
+        .brand-panel { top: 84px; }
+        .brand-panel h1 { font-size: 1.72rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+</style>
+
 </head>
 <body class="flex flex-col h-full w-full select-none">
     
@@ -267,6 +606,16 @@
         </div>
     </header>
 
+
+    <section class="brand-panel" aria-label="产品介绍">
+        <div class="brand-eyebrow"><span></span> mood bubble studio</div>
+        <h1>把说不出口的<br><em>心情吹成泡泡。</em></h1>
+        <p>写下一句话，让它慢慢浮起来。戳破泡泡时，你会听见一份只属于此刻的温柔回应。</p>
+        <div class="brand-tags" aria-hidden="true">
+            <span>轻触互动</span><span>智能回复</span><span>本地记录</span>
+        </div>
+    </section>
+
     <!-- Game Stage -->
     <div id="stage" class="absolute inset-0 z-10 overflow-hidden touch-none w-full h-full"></div>
 
@@ -300,6 +649,9 @@
                 <input id="fox-file-input" type="file" accept="image/*" class="hidden" />
             </div>
         </div>
+
+
+        <div class="fox-caption">点点小狐狸，或者写下此刻的心情</div>
 
         <!-- Controls Container -->
         <div class="w-full max-w-sm flex flex-col gap-3 pointer-events-auto">
