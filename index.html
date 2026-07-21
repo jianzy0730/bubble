@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小狐狸情绪泡泡机 · 精致版</title>
+    <title>Bubble · 小狐狸情绪泡泡机</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,7 +14,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -231,6 +231,473 @@
             scrollbar-width: none;
         }
     </style>
+
+<!-- soft-fox-refresh -->
+<meta name="theme-color" content="#f6eee8">
+<style>
+    :root {
+        --ink: #3f3735;
+        --muted: #8a7770;
+        --fox: #c8755d;
+        --fox-deep: #a95743;
+        --cream: #fffaf5;
+        --paper: rgba(255, 252, 248, 0.72);
+        --line: rgba(126, 84, 67, 0.12);
+        --soft-shadow: 0 24px 70px rgba(112, 72, 56, 0.12);
+    }
+
+    body {
+        color: var(--ink);
+        background:
+            radial-gradient(circle at 14% 16%, rgba(255,255,255,.95) 0 7%, transparent 28%),
+            radial-gradient(circle at 82% 18%, rgba(238,192,176,.28), transparent 29%),
+            radial-gradient(circle at 52% 105%, rgba(202,148,124,.28), transparent 43%),
+            linear-gradient(135deg, #fffdf9 0%, #f8f0e9 46%, #f5e9e3 100%);
+    }
+
+    body::before,
+    body::after {
+        content: "";
+        position: fixed;
+        border-radius: 999px;
+        filter: blur(2px);
+        pointer-events: none;
+        z-index: 1;
+        opacity: .8;
+    }
+
+    body::before {
+        width: 28rem;
+        height: 28rem;
+        left: -13rem;
+        bottom: -13rem;
+        border: 1px solid rgba(199,125,99,.14);
+        box-shadow: inset 0 0 80px rgba(255,255,255,.65);
+    }
+
+    body::after {
+        width: 18rem;
+        height: 18rem;
+        right: -8rem;
+        top: 24%;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.58);
+        box-shadow: 0 24px 80px rgba(199,125,99,.10);
+    }
+
+    .texture-overlay { opacity: .55; }
+
+    .glass {
+        background: linear-gradient(145deg, rgba(255,255,255,.76), rgba(255,248,242,.48));
+        border: 1px solid rgba(255,255,255,.74);
+        box-shadow: 0 14px 42px rgba(91,56,43,.09), inset 0 1px 0 rgba(255,255,255,.8);
+        backdrop-filter: blur(22px) saturate(120%);
+        -webkit-backdrop-filter: blur(22px) saturate(120%);
+    }
+
+    header {
+        width: min(1180px, calc(100% - 40px)) !important;
+        left: 50% !important;
+        transform: translateX(-50%);
+        padding: 22px 0 0 !important;
+    }
+
+    header > div:first-child {
+        min-height: 48px;
+        padding: 7px 14px 7px 8px !important;
+        border-radius: 18px !important;
+    }
+
+    #avatar-wrap {
+        width: 34px !important;
+        height: 34px !important;
+        border-color: rgba(255,255,255,.86) !important;
+    }
+
+    #display-name {
+        color: var(--muted) !important;
+        letter-spacing: .12em !important;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+
+    header > div:last-child {
+        gap: 3px !important;
+        padding: 5px;
+        border: 1px solid rgba(255,255,255,.74);
+        border-radius: 18px;
+        background: rgba(255,250,246,.56);
+        box-shadow: 0 14px 38px rgba(92,57,44,.08);
+        backdrop-filter: blur(22px);
+    }
+
+    header > div:last-child > button,
+    header > div:last-child > a {
+        width: 38px !important;
+        height: 38px !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        color: #92776e !important;
+    }
+
+    header > div:last-child > button:hover,
+    header > div:last-child > a:hover {
+        color: var(--fox-deep) !important;
+        background: rgba(199,125,99,.10) !important;
+        transform: translateY(-1px);
+    }
+
+    .brand-panel {
+        position: absolute;
+        z-index: 22;
+        top: 22%;
+        left: max(6vw, calc((100vw - 1180px) / 2));
+        width: min(390px, 34vw);
+        pointer-events: none;
+        animation: brandIn .9s cubic-bezier(.2,.75,.25,1) both;
+    }
+
+    .brand-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        color: #9d7568;
+        font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+    }
+
+    .brand-eyebrow span {
+        width: 28px;
+        height: 1px;
+        background: var(--fox);
+    }
+
+    .brand-panel h1 {
+        margin: 0;
+        color: #433936;
+        font-size: clamp(2.45rem, 4.3vw, 4.6rem);
+        line-height: 1.08;
+        letter-spacing: -.055em;
+        font-weight: 700;
+        text-shadow: 0 1px 0 rgba(255,255,255,.65);
+    }
+
+    .brand-panel h1 em {
+        color: var(--fox);
+        font-style: normal;
+        font-family: 'Ma Shan Zheng', cursive;
+        font-weight: 400;
+        letter-spacing: -.01em;
+    }
+
+    .brand-panel p {
+        max-width: 320px;
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.9;
+        letter-spacing: .04em;
+    }
+
+    .brand-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .brand-tags span {
+        padding: 8px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255,255,255,.38);
+        color: #92776e;
+        font: 500 11px/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .05em;
+    }
+
+    #stage {
+        mask-image: linear-gradient(to bottom, transparent 0, #000 7%, #000 82%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 7%, #000 82%, transparent 100%);
+    }
+
+    .bubble-physics { filter: drop-shadow(0 18px 24px rgba(132,91,75,.08)); }
+
+    .bubble-body {
+        background:
+            radial-gradient(circle at 28% 22%, rgba(255,255,255,.98) 0 4%, rgba(255,255,255,.42) 10%, transparent 23%),
+            radial-gradient(circle at 72% 76%, var(--bubble-color-dark) 0%, transparent 44%),
+            radial-gradient(circle at 34% 34%, rgba(255,255,255,.24), var(--bubble-color) 72%, rgba(255,255,255,.18) 100%) !important;
+        border: 1px solid rgba(255,255,255,.78) !important;
+        box-shadow:
+            inset 8px 8px 22px rgba(255,255,255,.5),
+            inset -8px -10px 25px rgba(147,94,75,.08),
+            0 18px 38px rgba(120,78,61,.11) !important;
+        backdrop-filter: blur(2px);
+    }
+
+    .bubble-text {
+        color: rgba(70,57,53,.82) !important;
+        font-size: .88rem !important;
+        letter-spacing: .06em !important;
+        text-shadow: 0 1px 8px rgba(255,255,255,.9) !important;
+    }
+
+    footer {
+        left: auto !important;
+        right: max(5vw, calc((100vw - 1180px) / 2));
+        width: min(430px, calc(100% - 36px)) !important;
+        padding: 0 0 34px !important;
+        align-items: stretch !important;
+        gap: 14px !important;
+    }
+
+    footer > .relative.group {
+        align-self: center;
+        margin-bottom: -4px;
+    }
+
+    footer > .relative.group > div:nth-child(2) {
+        width: 92px !important;
+        height: 92px !important;
+        background: linear-gradient(145deg, rgba(255,255,255,.95), rgba(255,245,239,.82)) !important;
+        border-width: 6px !important;
+        box-shadow: 0 24px 55px rgba(167,92,67,.19) !important;
+    }
+
+    .fox-caption {
+        text-align: center;
+        color: #a1877d;
+        font: 500 11px/1.5 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .08em;
+    }
+
+    footer .max-w-sm { max-width: none !important; }
+
+    #mood-input {
+        height: 48px !important;
+        color: var(--ink) !important;
+        font-family: 'Noto Serif SC', serif;
+    }
+
+    #mood-input::placeholder { color: #ad9991 !important; }
+
+    #mood-input + button {
+        width: 44px !important;
+        height: 44px !important;
+        background: linear-gradient(145deg, #d18469, #b8614a) !important;
+        box-shadow: 0 10px 24px rgba(177,83,60,.26) !important;
+    }
+
+    footer .glass.rounded-full {
+        padding: 5px 6px 5px 20px !important;
+        border-radius: 21px !important;
+    }
+
+    footer .glass.rounded-2xl {
+        border-radius: 18px !important;
+        padding: 9px 11px !important;
+    }
+
+    #modal-container .modal-card,
+    #history-panel .sheet {
+        border-radius: 26px !important;
+        border: 1px solid rgba(255,255,255,.86) !important;
+        background: rgba(255,252,249,.88) !important;
+        box-shadow: var(--soft-shadow) !important;
+    }
+
+    #history-panel .sheet { max-width: 760px !important; }
+    .history-card { background: rgba(255,255,255,.62) !important; }
+
+    @keyframes brandIn {
+        from { opacity: 0; transform: translateY(18px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+        header {
+            width: calc(100% - 24px) !important;
+            padding-top: 12px !important;
+        }
+
+        header > div:first-child { min-height: 44px; }
+        header > div:last-child { max-width: 52vw; overflow-x: auto; scrollbar-width: none; }
+        header > div:last-child::-webkit-scrollbar { display: none; }
+
+        .brand-panel {
+            top: 94px;
+            left: 22px;
+            width: calc(100% - 44px);
+            text-align: center;
+        }
+
+        .brand-eyebrow { justify-content: center; margin-bottom: 9px; }
+        .brand-panel h1 { font-size: clamp(1.75rem, 8vw, 2.55rem); line-height: 1.08; }
+        .brand-panel h1 br { display: block; }
+        .brand-panel h1 em { white-space: nowrap; }
+        .brand-panel p { display: none; }
+        .brand-tags { display: none; }
+
+        footer {
+            right: 50%;
+            transform: translateX(50%);
+            width: calc(100% - 28px) !important;
+            padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+        }
+
+        footer > .relative.group > div:nth-child(2) {
+            width: 76px !important;
+            height: 76px !important;
+        }
+
+        .fox-caption { display: none; }
+        #stage { mask-image: none; -webkit-mask-image: none; }
+    }
+
+    @media (max-width: 520px) {
+        #display-name { max-width: 94px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        header > div:last-child { max-width: 49vw; }
+        header > div:last-child > button,
+        header > div:last-child > a { width: 36px !important; height: 36px !important; flex: 0 0 auto; }
+        .brand-panel { top: 84px; }
+        .brand-panel h1 { font-size: 1.72rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+    }
+</style>
+
+
+<!-- fox-and-type-refinement -->
+<style>
+    body,
+    button,
+    input,
+    select,
+    textarea {
+        font-family: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .brand-panel {
+        width: min(540px, 42vw) !important;
+    }
+
+    .brand-panel h1 {
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-size: clamp(2.7rem, 3.9vw, 4.15rem) !important;
+        font-weight: 700 !important;
+        line-height: 1.18 !important;
+        letter-spacing: -0.055em !important;
+    }
+
+    .brand-panel h1 em {
+        display: inline-block;
+        white-space: nowrap;
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-style: normal !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.055em !important;
+    }
+
+    .brand-eyebrow {
+        letter-spacing: .15em !important;
+        font-weight: 600 !important;
+    }
+
+    .brand-panel p {
+        max-width: 430px;
+        color: #75625b !important;
+        font-size: 14px !important;
+        line-height: 1.85 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .brand-tags span,
+    .fox-caption,
+    #display-name {
+        font-family: 'Noto Sans SC', sans-serif !important;
+        letter-spacing: .04em !important;
+    }
+
+    #display-name {
+        font-weight: 500 !important;
+    }
+
+    .bubble-text {
+        max-width: 76%;
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-weight: 600 !important;
+        line-height: 1.35 !important;
+        letter-spacing: 0 !important;
+        text-align: center;
+        overflow-wrap: anywhere;
+    }
+
+    #mood-input {
+        font-size: 14px !important;
+        letter-spacing: 0 !important;
+    }
+
+    #fox-svg {
+        filter: drop-shadow(0 4px 7px rgba(123, 67, 49, .13));
+    }
+
+    @media (max-width: 860px) {
+        .brand-panel {
+            width: calc(100% - 44px) !important;
+        }
+
+        .brand-panel h1 {
+            font-size: clamp(2rem, 8vw, 2.55rem) !important;
+            line-height: 1.2 !important;
+            letter-spacing: -0.045em !important;
+        }
+
+        .brand-panel h1 em {
+            white-space: normal;
+        }
+
+        .brand-eyebrow {
+            letter-spacing: .11em !important;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .brand-panel h1 {
+            font-size: 2rem !important;
+        }
+
+        #display-name {
+            letter-spacing: .03em !important;
+        }
+    }
+</style>
+
+
+<!-- mobile-status-polish -->
+<style>
+@media (max-width: 520px) {
+    #display-name {
+        max-width: none !important;
+        overflow: visible !important;
+        font-size: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    #display-name::after {
+        content: "ONLINE";
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .09em;
+    }
+}
+</style>
+
 </head>
 <body class="flex flex-col h-full w-full select-none">
     
@@ -267,6 +734,16 @@
         </div>
     </header>
 
+
+    <section class="brand-panel" aria-label="产品介绍">
+        <div class="brand-eyebrow"><span></span> mood bubble studio</div>
+        <h1>把说不出口的<br><em>心情吹成泡泡。</em></h1>
+        <p>写下一句话，让它慢慢浮起来。戳破泡泡时，你会听见一份只属于此刻的温柔回应。</p>
+        <div class="brand-tags" aria-hidden="true">
+            <span>轻触互动</span><span>智能回复</span><span>本地记录</span>
+        </div>
+    </section>
+
     <!-- Game Stage -->
     <div id="stage" class="absolute inset-0 z-10 overflow-hidden touch-none w-full h-full"></div>
 
@@ -278,18 +755,31 @@
             <div id="fox-hearts" class="absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
             <div class="w-24 h-24 rounded-full bg-[#fdfbf7] border-4 border-white shadow-[0_12px_48px_rgba(199,125,99,0.25)] flex items-center justify-center relative overflow-hidden transition-transform active:scale-95 duration-200 hover:shadow-[0_16px_56px_rgba(199,125,99,0.3)]">
                 <img id="fox-custom-img" class="fox-custom-img" alt="fox-custom">
-                <svg id="fox-svg" class="fox-svg w-[70%] h-[70%]" viewBox="0 0 100 100" fill="none">
-                    <path d="M50 88C75 88 90 70 90 50C90 28 75 22 50 22C25 22 10 28 10 50C10 70 25 88 50 88Z" fill="#C77D63"/>
-                    <path class="fox-ear-left" d="M25 25L12 2L42 18" fill="#C77D63"/>
-                    <path class="fox-ear-right" d="M75 25L88 2L58 18" fill="#C77D63"/>
-                    <path d="M25 25L16 10L36 20" fill="#EFA995" opacity="0.6"/>
-                    <path d="M75 25L84 10L64 20" fill="#EFA995" opacity="0.6"/>
-                    <path d="M50 22C50 22 62 40 50 62C38 40 50 22 50 22" fill="#FFF8F5"/>
-                    <circle class="fox-eye" cx="34" cy="54" r="3.5" fill="#4E342E"/>
-                    <circle class="fox-eye" cx="66" cy="54" r="3.5" fill="#4E342E"/>
-                    <path d="M47 64Q50 67 53 64" stroke="#4E342E" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
-                    <ellipse cx="24" cy="60" rx="5" ry="3" fill="#EFA995" opacity="0.4"/>
-                    <ellipse cx="76" cy="60" rx="5" ry="3" fill="#EFA995" opacity="0.4"/>
+                <svg id="fox-svg" class="fox-svg w-[76%] h-[76%]" viewBox="0 0 120 120" fill="none" aria-label="小狐狸头像">
+                    <defs>
+                        <linearGradient id="foxFur" x1="25" y1="24" x2="94" y2="102" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#E99373"/>
+                            <stop offset="1" stop-color="#C96F52"/>
+                        </linearGradient>
+                    </defs>
+                    <path class="fox-ear-left" d="M25 45L20 15L50 34L42 52Z" fill="url(#foxFur)"/>
+                    <path class="fox-ear-right" d="M95 45L100 15L70 34L78 52Z" fill="url(#foxFur)"/>
+                    <path d="M27 37L24 23L43 37L37 45Z" fill="#F8C2B2"/>
+                    <path d="M93 37L96 23L77 37L83 45Z" fill="#F8C2B2"/>
+                    <path d="M31 39C38 28 49 24 60 24C71 24 82 28 89 39C98 53 98 78 87 92C80 101 70 105 60 105C50 105 40 101 33 92C22 78 22 53 31 39Z" fill="url(#foxFur)"/>
+                    <path d="M31 58C36 48 44 43 52 41C49 56 45 68 34 78C30 72 28 65 31 58Z" fill="#FFF4ED"/>
+                    <path d="M89 58C84 48 76 43 68 41C71 56 75 68 86 78C90 72 92 65 89 58Z" fill="#FFF4ED"/>
+                    <path d="M52 31L60 45L68 31L66 58L60 64L54 58Z" fill="#FFF8F3"/>
+                    <ellipse cx="51" cy="72" rx="13" ry="11" fill="#FFF4ED"/>
+                    <ellipse cx="69" cy="72" rx="13" ry="11" fill="#FFF4ED"/>
+                    <ellipse class="fox-eye" cx="45" cy="61" rx="3.5" ry="4" fill="#49332D"/>
+                    <ellipse class="fox-eye" cx="75" cy="61" rx="3.5" ry="4" fill="#49332D"/>
+                    <circle cx="36" cy="72" r="4" fill="#EFA693" opacity="0.75"/>
+                    <circle cx="84" cy="72" r="4" fill="#EFA693" opacity="0.75"/>
+                    <path d="M55 72C56.5 69.8 63.5 69.8 65 72C63.8 75.7 61.9 77 60 77C58.1 77 56.2 75.7 55 72Z" fill="#49332D"/>
+                    <path d="M60 77V80" stroke="#49332D" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M60 80C57.8 83.2 54.7 83.5 52.5 81.8" stroke="#49332D" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M60 80C62.2 83.2 65.3 83.5 67.5 81.8" stroke="#49332D" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <button id="fox-upload-btn" class="absolute top-1 right-1 w-7 h-7 rounded-full bg-white/80 text-[#c77d63] flex items-center justify-center text-xs shadow opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation(); document.getElementById('fox-file-input').click();">
                     <i class="fa-solid fa-image"></i>
@@ -300,6 +790,9 @@
                 <input id="fox-file-input" type="file" accept="image/*" class="hidden" />
             </div>
         </div>
+
+
+        <div class="fox-caption">点点小狐狸，或者写下此刻的心情</div>
 
         <!-- Controls Container -->
         <div class="w-full max-w-sm flex flex-col gap-3 pointer-events-auto">

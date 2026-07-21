@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小狐狸情绪泡泡机 · 高级设置</title>
+    <title>Bubble · 个性化设置</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,7 +14,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -130,6 +130,259 @@
             transition: all 0.3s;
         }
     </style>
+
+<!-- soft-fox-settings-refresh -->
+<meta name="theme-color" content="#f7efe9">
+<style>
+    :root {
+        --ink: #423936;
+        --muted: #917c73;
+        --fox: #c8755d;
+        --fox-deep: #a95743;
+        --paper: rgba(255,252,249,.78);
+        --line: rgba(126,84,67,.13);
+    }
+
+    body {
+        background:
+            radial-gradient(circle at 8% 8%, rgba(255,255,255,.95), transparent 29%),
+            radial-gradient(circle at 92% 18%, rgba(231,170,150,.22), transparent 28%),
+            linear-gradient(135deg, #fffdf9, #f7eee8 58%, #f3e4de) !important;
+        color: var(--ink) !important;
+    }
+
+    body::before {
+        content: "";
+        position: fixed;
+        width: 34rem;
+        height: 34rem;
+        right: -18rem;
+        bottom: -19rem;
+        border-radius: 50%;
+        border: 1px solid rgba(199,125,99,.14);
+        box-shadow: inset 0 0 90px rgba(255,255,255,.5);
+        pointer-events: none;
+    }
+
+    body > .max-w-3xl {
+        max-width: 1080px !important;
+        padding-bottom: 50px;
+    }
+
+    body > .max-w-3xl > header {
+        position: sticky;
+        top: 12px;
+        z-index: 30;
+        padding: 12px 16px !important;
+        border: 1px solid rgba(255,255,255,.78) !important;
+        border-radius: 20px;
+        background: rgba(255,251,247,.64);
+        box-shadow: 0 18px 52px rgba(101,64,49,.08);
+        backdrop-filter: blur(22px);
+    }
+
+    body > .max-w-3xl > header h1 {
+        color: var(--ink) !important;
+        letter-spacing: -.03em;
+    }
+
+    body > .max-w-3xl > header > div > div:first-child {
+        background: linear-gradient(145deg, #d4866b, #b75e48) !important;
+        box-shadow: 0 10px 24px rgba(169,79,57,.22) !important;
+    }
+
+    .settings-intro {
+        display: grid;
+        grid-template-columns: 1.2fr .8fr;
+        gap: 18px;
+        align-items: end;
+        padding: 32px 4px 6px;
+    }
+
+    .settings-intro .eyebrow {
+        color: #9e7769;
+        font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+    }
+
+    .settings-intro h2 {
+        margin: 12px 0 0;
+        color: var(--ink);
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.12;
+        letter-spacing: -.045em;
+    }
+
+    .settings-intro h2 em {
+        color: var(--fox);
+        font-style: normal;
+        font-family: 'Ma Shan Zheng', cursive;
+        font-weight: 400;
+    }
+
+    .settings-intro p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.8;
+        text-align: right;
+    }
+
+    .glass-card {
+        background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(255,248,243,.54)) !important;
+        border: 1px solid rgba(255,255,255,.8) !important;
+        box-shadow: 0 18px 52px rgba(101,64,49,.08), inset 0 1px 0 rgba(255,255,255,.82) !important;
+        backdrop-filter: blur(22px) saturate(115%) !important;
+    }
+
+    body > .max-w-3xl > .flex.gap-3 {
+        width: 100% !important;
+        border-radius: 18px !important;
+        padding: 5px !important;
+    }
+
+    .tab-btn { flex: 1; border-radius: 14px !important; padding-top: 11px !important; padding-bottom: 11px !important; }
+    .tab-btn.active { background: linear-gradient(145deg, #d18469, #b7614a) !important; box-shadow: 0 8px 20px rgba(173,81,59,.2) !important; }
+
+    .tab-panel { border-radius: 26px !important; padding: clamp(18px, 3vw, 34px) !important; }
+    .tab-panel h2 { color: #966f62 !important; }
+
+    .tab-panel .bg-white\/30,
+    .tab-panel .hover\:bg-white\/50:hover {
+        background: rgba(255,255,255,.47) !important;
+    }
+
+    .tab-panel .rounded-xl { border-radius: 18px !important; }
+
+    .input-fox {
+        min-height: 42px;
+        border-radius: 12px !important;
+        border-color: rgba(154,102,82,.16) !important;
+        background: rgba(255,255,255,.68) !important;
+        color: var(--ink) !important;
+    }
+
+    .input-fox:focus {
+        border-color: rgba(199,117,93,.7) !important;
+        box-shadow: 0 0 0 4px rgba(199,117,93,.10) !important;
+    }
+
+    .btn-fox { background: linear-gradient(145deg, #d18469, #b7614a) !important; box-shadow: 0 9px 20px rgba(173,81,59,.18); }
+    .btn-fox-outline { border-color: rgba(160,103,81,.18) !important; background: rgba(255,255,255,.35) !important; }
+
+    @media (max-width: 720px) {
+        body { padding: 12px !important; }
+        body > .max-w-3xl > header { top: 8px; }
+        body > .max-w-3xl > header > a { white-space: nowrap; flex-shrink: 0; font-size: 12px; }
+        .settings-intro { grid-template-columns: 1fr; padding: 24px 4px 2px; }
+        .settings-intro p { text-align: left; }
+        .settings-intro h2 { font-size: 2.1rem; }
+    }
+</style>
+
+
+<!-- settings-type-refinement -->
+<style>
+    body,
+    button,
+    input,
+    select,
+    textarea {
+        font-family: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-variant-numeric: tabular-nums;
+    }
+
+    body {
+        color: #4b403c !important;
+    }
+
+    body > .max-w-3xl > header h1,
+    .settings-intro h2,
+    .settings-intro h2 em {
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-style: normal !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.045em !important;
+    }
+
+    .settings-intro h2 {
+        line-height: 1.2 !important;
+    }
+
+    .settings-intro h2 em {
+        display: inline-block;
+        color: var(--fox) !important;
+    }
+
+    .settings-intro .eyebrow {
+        letter-spacing: .14em !important;
+        font-weight: 600 !important;
+    }
+
+    .settings-intro p {
+        color: #75635c !important;
+        font-size: 14px !important;
+        line-height: 1.85 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .tab-btn {
+        font-weight: 600 !important;
+        letter-spacing: .02em !important;
+    }
+
+    .tab-panel h2 {
+        color: #895f52 !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        line-height: 1.5 !important;
+        letter-spacing: .055em !important;
+    }
+
+    .tab-panel h3,
+    .tab-panel label,
+    .tab-panel p,
+    .tab-panel span,
+    .tab-panel button {
+        letter-spacing: 0 !important;
+    }
+
+    .tab-panel label {
+        color: #765f56 !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+    }
+
+    .tab-panel p,
+    .tab-panel .text-\[10px\] {
+        color: #8a756c !important;
+        line-height: 1.65 !important;
+    }
+
+    .input-fox {
+        font-family: 'Noto Sans SC', sans-serif !important;
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+    }
+
+    body > .max-w-3xl > header a {
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    @media (max-width: 720px) {
+        .settings-intro h2 {
+            font-size: 2rem !important;
+        }
+
+        .settings-intro p {
+            font-size: 13px !important;
+        }
+    }
+</style>
+
 </head>
 <body class="p-4 md:p-8">
     <div class="texture-overlay"></div>
@@ -150,6 +403,15 @@
                 <span class="group-hover:-translate-x-1 transition-transform">←</span> 返回主页
             </a>
         </header>
+
+
+        <section class="settings-intro">
+            <div>
+                <div class="eyebrow">personalize your bubble space</div>
+                <h2>把这里调成<br><em>你喜欢的样子。</em></h2>
+            </div>
+            <p>模型、声音、头像与泡泡质感都在这里配置。所有偏好仍然只保存在当前浏览器。</p>
+        </section>
 
         <!-- Tabs -->
         <div class="flex gap-3 p-1 glass-card rounded-lg w-fit">
